@@ -53,7 +53,7 @@ class YMLTest(unittest.TestCase):
     PSWD = os.getenv('PSWD')
     
     def setUp(self):
-        """�?нициализация переменных для всех тестов"""
+        """Инициализация переменных для всех тестов"""
         pass
         self.parser = etree.XMLParser(huge_tree=True)
         print os.getenv('TYPE')
