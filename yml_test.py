@@ -152,7 +152,6 @@ class YMLTest(unittest.TestCase):
             
             off_url = element.find('url').text
             DPD = '%3Fdcid%3D' in off_url
-            print off_url, DPD
             if DPD:
                 DPDcity = int(off_url[off_url.find('%3Fdcid%3D')+10:off_url.find('%26')])#поиск параметра id города и преобразование в integer
             
@@ -328,7 +327,11 @@ class YMLTest(unittest.TestCase):
                 print 'ID товара: ', element.attrib['id'] ,' значение в файле:',pickup_tag.text, ' необходимое значение:', pickup
                 print '-'*80
             #тег склад <store>
-            if (store_tag.text in ('true', 'True') ) != ( item[1].status==1 ):
+            if DPD == True:
+                in_store = False
+            else:
+                in_store = ( item[1].status==1 )
+            if (store_tag.text in ('true', 'True') ) != in_store:
                 stat+=1
                 print 'Ошибка в теге <STORE>:'
                 print 'ID товара: ', element.attrib['id'] ,' значение в файле:', store_tag.text, ' значение в базе данных:', item[1].status==1, item[1].status
