@@ -221,20 +221,26 @@ class YMLTest(unittest.TestCase):
                                 action_price = action_price[0][0]
                                 main_price = item[3].price if item[1].status != 5 else item[3].price_supplier
 
-                                if int(action_price) > int(main_price) and actions_goods[0].action_id not in (13,):
-                                    item_price = main_price
-                                elif int(action_price) < int(main_price) and actions_goods[0].action_id in (13,):
-                                    item_price = main_price
+                                #if int(action_price) > int(main_price) and actions_goods[0].action_id not in (13,):
+                                #    item_price = main_price
+                                #elif int(action_price) < int(main_price) and actions_goods[0].action_id in (13,):
+                                #    item_price = main_price
+                                #else:
+                                #    item_price = action_price
+                                if action_price < main_price and actions_goods[0].action_id not in (13,):
+                                    if int(float(price_tag.text)) != int(action_price):
+                                        stat+=1
+                                        print 'Ошибка в теге <PRICE>: ЦЕНА АКЦИОННАЯ'
+                                        print 'ID товара: ', element.attrib['id'] ,' значение в файле:', int(float(price_tag.text)), ' значение в базе данных:', int(action_price)
+                                        print '-'*80
                                 else:
-                                    item_price = action_price
-
-
-                                if int(float(price_tag.text)) != int(item_price):
-                                    stat+=1
-                                    print 'Ошибка в теге <PRICE>: ЦЕНА АКЦИОННАЯ'
-                                    print 'ID товара: ', element.attrib['id'] ,' значение в файле:', int(float(price_tag.text)), ' значение в базе данных:', int(item_price)
-                                    print '-'*80
-
+                                    item_price = item[3].price if item[1].status != 5 else item[3].price_supplier            
+                                    if int(float(price_tag.text))!= int(item_price):
+                                        stat+=1
+                                        print 'Ошибка в теге <PRICE>:'
+                                        print 'ID товара: ', element.attrib['id'] ,' значение в файле:',int(float(price_tag.text)), ' значение в базе данных:', int(item_price)
+                                        print '-'*80
+                                    
                             else:
                                 item_price = item[3].price if item[1].status != 5 else item[3].price_supplier            
                                 if int(float(price_tag.text))!= int(item_price):
@@ -374,10 +380,10 @@ class YMLTest(unittest.TestCase):
                 #цена доставки определена в товаре или для магазина
                 else:
                     if DPD == True:
-                        logic_weight = int(item[0].logic_weight) + (1 if item[0].logic_weight%1 != False else 0)
+                        logic_weight = int(item[0].logic_weight) #+ (1 if item[0].logic_weight%1 != False else 0) максимальный вес не включен, т.е. при весе 5 берется значение из 15
                         cost = session.query(Rates.cost).\
                                       filter(Rates.city_id == DPDcity).\
-                                      filter(or_(Rates.max_weight == logic_weight, Rates.max_weight > logic_weight)).first()
+                                      filter(Rates.max_weight > logic_weight).first()
                         if cost:
                             cost = cost[0]#tuple is result of query
                             if int(delivery_price_tag.text) != cost: 
