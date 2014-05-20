@@ -112,8 +112,6 @@ class YMLTest(unittest.TestCase):
         shop_url_element=xml.find('shop').find('url')
         
         DOMAIN = get_domain(shop_url_element.text)
-        DPD = '?dcid=' in shop_url_element.text
-        DPDcity = int(shop_url_element.text[shop_url_element.text.find('?dcid=')+6:])#поиск параметра id города и преобразование в integer
         cnt=1
         stat=0
         
@@ -150,6 +148,9 @@ class YMLTest(unittest.TestCase):
             delivery_price_tag=element.find('local_delivery_cost') if element.find('local_delivery_cost')!=None else xml.find('shop').find('local_delivery_cost')
   
             delivery_tag=element.find('delivery')
+            off_url = element.find('url')
+            DPD = '%3Fdcid%3D' in off_url
+            DPDcity = int(off_url[off_url.find('%3Fdcid%3D')+10:off_url.find('%26')])#поиск параметра id города и преобразование в integer
 
             cnt+=1
             # получаем параметры товара из БД
