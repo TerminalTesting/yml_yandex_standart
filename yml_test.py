@@ -277,39 +277,41 @@ class YMLTest(unittest.TestCase):
                 print '-'*80
             #тег самовывоза <pickup>, может быть разным при разной габаритности и насткойках инфоблоков
             #не учтены маловероятные варианты, например, если в регионе 2 магазина и в настройках их обоих запрещен вывод МГТ и т.д. В настоящий момент на сайте нигде это не используется
-            pickup=True
-            
-            if int( item[8] ) > 0:#если габаритность переопределена в карточке товара, 1 - обычная, 2 - крупногабаритный
-                if int( item[8] )==1 and ((0,) not in no_self_delivery[0]):
-                    pickup=False
-                if int( item[8] )==2 and ((0,) not in no_self_delivery[1]):
-                    pickup=False
-                if int( item[8] )==2 and item[9] == 1:
-                    pickup=False
-                if len(no_self_delivery[0])==1 and int( item[8] )==1:
-                    nomgt = session.query(Shops_block.block_id).\
-                                          join(Shops, Shops_block.shop_id==Shops.id).\
-                                          join(Region, Shops.city_id==Region.id).\
-                                          filter(Region.domain==DOMAIN).\
-                                          all()
-                    if nomgt == True and int(item[10]) in nomgt:
-                        pickup=False
-                    
+            if DPD == True:
+                pickup = False
             else:
-                if int( item[6] )==1 and ((0,) not in no_self_delivery[0]):
-                    pickup=False
-                if int( item[6] )==2 and ((0,) not in no_self_delivery[1]):
-                    pickup=False
-                if int( item[6] )==2 and item[9] == 1:
-                    pickup=False
-                if len(no_self_delivery[0])==1 and int( item[6] )==1:
-                    nomgt = session.query(Shops_block.block_id).\
+                pickup=True
+                if int( item[8] ) > 0:#если габаритность переопределена в карточке товара, 1 - обычная, 2 - крупногабаритный
+                    if int( item[8] )==1 and ((0,) not in no_self_delivery[0]):
+                        pickup=False
+                    if int( item[8] )==2 and ((0,) not in no_self_delivery[1]):
+                        pickup=False
+                    if int( item[8] )==2 and item[9] == 1:
+                        pickup=False
+                    if len(no_self_delivery[0])==1 and int( item[8] )==1:
+                        nomgt = session.query(Shops_block.block_id).\
                                           join(Shops, Shops_block.shop_id==Shops.id).\
                                           join(Region, Shops.city_id==Region.id).\
                                           filter(Region.domain==DOMAIN).\
                                           all()
-                    if nomgt == True and int(item[10]) in nomgt:
+                        if nomgt == True and int(item[10]) in nomgt:
+                            pickup=False
+                    
+                else:
+                    if int( item[6] )==1 and ((0,) not in no_self_delivery[0]):
                         pickup=False
+                    if int( item[6] )==2 and ((0,) not in no_self_delivery[1]):
+                        pickup=False
+                    if int( item[6] )==2 and item[9] == 1:
+                        pickup=False
+                    if len(no_self_delivery[0])==1 and int( item[6] )==1:
+                        nomgt = session.query(Shops_block.block_id).\
+                                          join(Shops, Shops_block.shop_id==Shops.id).\
+                                          join(Region, Shops.city_id==Region.id).\
+                                          filter(Region.domain==DOMAIN).\
+                                          all()
+                        if nomgt == True and int(item[10]) in nomgt:
+                            pickup=False
                     
             if (pickup_tag.text in ('true', 'True') ) != pickup:
                    
