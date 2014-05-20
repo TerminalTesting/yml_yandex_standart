@@ -110,7 +110,8 @@ class YMLTest(unittest.TestCase):
         xml_tree=xml.getiterator('offer')
         shop_url_element=xml.find('shop').find('url')
         
-        DOMAIN = get_domain(shop_url_element.text) 
+        DOMAIN = get_domain(shop_url_element.text)
+        DPD = '?dcid=' in shop_url_element
         cnt=1
         stat=0
         
@@ -265,7 +266,7 @@ class YMLTest(unittest.TestCase):
 
 
             #тег статуса <available>
-            if (element.attrib['available'] in ('true', 'True') ) != ( item[1].status==1 ):
+            if (element.attrib['available'] in ('true', 'True') ) != ( item[1].status==1 ) if !DPD else False:
                 stat+=1
                 print 'Ошибка в теге <AVAILABLE>:'
                 print 'ID товара: ', element.attrib['id'] ,' значение в файле:',element.attrib['available'], ' значение в базе данных:',item[1].status==1, item[1].status
