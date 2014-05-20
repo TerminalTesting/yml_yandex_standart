@@ -150,10 +150,10 @@ class YMLTest(unittest.TestCase):
   
             delivery_tag=element.find('delivery')
             
-            off_url = element.find('url')
+            off_url = element.find('url').text
             DPD = '%3Fdcid%3D' in off_url
-            print off_url, DPD
-            DPDcity = int(off_url[off_url.find('%3Fdcid%3D')+10:off_url.find('%26')])#поиск параметра id города и преобразование в integer
+            if DPD:
+                DPDcity = int(off_url[off_url.find('%3Fdcid%3D')+10:off_url.find('%26')])#поиск параметра id города и преобразование в integer
             
             
             cnt+=1
