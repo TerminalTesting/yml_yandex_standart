@@ -266,7 +266,7 @@ class YMLTest(unittest.TestCase):
 
 
             #тег статуса <available>
-            if (element.attrib['available'] in ('true', 'True') ) != ( item[1].status==1 ) if !DPD else False:
+            if (element.attrib['available'] in ('true', 'True') ) != ( item[1].status==1 ) if DPD != True else False:
                 stat+=1
                 print 'Ошибка в теге <AVAILABLE>:'
                 print 'ID товара: ', element.attrib['id'] ,' значение в файле:',element.attrib['available'], ' значение в базе данных:',item[1].status==1, item[1].status
