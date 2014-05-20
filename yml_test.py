@@ -135,8 +135,12 @@ class YMLTest(unittest.TestCase):
 #             pass
 #         else:
 #             delivery_price={1:0.00, 2:0.00}
+        off_url = xml.find('shop').find('offers').find('offer').find('url')
+        DPD = '%3Fdcid%3D' in off_url
+        DPDcity = int(off_url[off_url.find('%3Fdcid%3D')+10:off_url.find('%26')])#поиск параметра id города и преобразование в integer
+
         
-        print ('YML:%s\nDomain:%s\nDeliveries flag:%s\nDPD:%s')%(self.YML_FILE_NAME, DOMAIN, delivery_flag, DPD )
+        print ('YML:%s\nDomain:%s\nDeliveries flag:%s\nDPD:%s')%(self.YML_FILE_NAME, DOMAIN, delivery_flag, DPD)
         print
         for element in xml_tree:
             # получаем теги из выгрузки
@@ -148,10 +152,7 @@ class YMLTest(unittest.TestCase):
             delivery_price_tag=element.find('local_delivery_cost') if element.find('local_delivery_cost')!=None else xml.find('shop').find('local_delivery_cost')
   
             delivery_tag=element.find('delivery')
-            off_url = element.find('url')
-            DPD = '%3Fdcid%3D' in off_url
-            DPDcity = int(off_url[off_url.find('%3Fdcid%3D')+10:off_url.find('%26')])#поиск параметра id города и преобразование в integer
-
+            
             cnt+=1
             # получаем параметры товара из БД
             item=session.query( Goods, Goods_stat, Region, Goods_price, Goods_section,
