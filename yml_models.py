@@ -10,7 +10,7 @@
 # from sqlalchemy.ext.declarative import declarative_base
 
 
-from sqlalchemy import Column, Integer, Unicode, String, Float, DateTime
+from sqlalchemy import Column, Integer, Unicode, String, Float, DateTime, DECIMAL
 from sqlalchemy import ForeignKey, PrimaryKeyConstraint
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
@@ -28,7 +28,15 @@ class Goods( Base ):
     full_name=Column( Unicode)
     section_guid=Column( Unicode, ForeignKey('t_goods_sections.guid') )
     block_id=Column( Integer, ForeignKey('t_goods_block.id') )
-    overall_type=Column( Integer)
+    overall_type=Column( Integer )
+    logic_weight = Column( DECIMAL )
+
+class Rates( Base ):
+    """ Стоимость доставки в ДПД регионы """
+    __tablename__ = 't_region_city_rates'
+    max_weight = Column( Integer )
+    city_id = Column( Integer, primary_key=True )
+    cost = Column( Float )
 
 class Region( Base ):
     """ Регионы """

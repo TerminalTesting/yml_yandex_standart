@@ -112,6 +112,7 @@ class YMLTest(unittest.TestCase):
         
         DOMAIN = get_domain(shop_url_element.text)
         DPD = '?dcid=' in shop_url_element.text
+        DPDcity = int(shop_url_element.text[shop_url_element.text.find('?dcid=')+6:])#поиск параметра id города и преобразование в integer
         cnt=1
         stat=0
         
@@ -362,20 +363,34 @@ class YMLTest(unittest.TestCase):
                         print '-'*80
                 #цена доставки определена в товаре или для магазина
                 else:
-                    if int( item[8] ) > 0:
-                        if  ( float(delivery_price_tag.text) not in delivery_price[ int( item[8] ) ] ): 
-                            stat+=1
-                            print 'Ошибка в теге <LOCAL_DELIVERY_COST>:'
-                            print 'Цена доставки определена в товаре или для магазина'
-                            print 'ID товара: ', element.attrib['id'] ,' значение в базе данных:', delivery_price_tag.text, ' тип доставки(1-МГТ, 2-КГТ):', int( item[8] )
-                            print '-'*80
+                    if DPD == True:
+                        cost = self.session.query(Rates.cost).\
+                                           filter(Rates.city_id == DPDcity).\
+                                           filter(or_(Rates.max_weight == int(item[6].logic_weight), Rates.max_weight > int(item[6].logic_weight))).first()
+                        if cost:
+                            cost = cost[0]#tuple is result of query
+                            if int(delivery_price_tag.text) != cost: 
+                                stat+=1
+                                print 'Ошибка в теге <LOCAL_DELIVERY_COST>:'
+                                print 'Цена доставки не соответствует'
+                                print 'ID товара: ', element.attrib['id'] ,' значение в файле:', delivery_price_tag.text, ' значение в базе данных:', cost
+                                print '-'*80
+                            
                     else:
-                        if  ( float(delivery_price_tag.text) not in delivery_price[ int( item[6] ) ] ): 
-                            stat+=1
-                            print 'Ошибка в теге <LOCAL_DELIVERY_COST>:'
-                            print 'Цена доставки определена в товаре или для магазина'
-                            print 'ID товара: ', element.attrib['id'] ,' значение в базе данных:', delivery_price_tag.text, ' тип доставки(1-МГТ, 2-КГТ):', int( item[6] )
-                            print '-'*80
+                        if int( item[8] ) > 0:
+                            if  ( float(delivery_price_tag.text) not in delivery_price[ int( item[8] ) ] ): 
+                                stat+=1
+                                print 'Ошибка в теге <LOCAL_DELIVERY_COST>:'
+                                print 'Цена доставки определена в товаре или для магазина'
+                                print 'ID товара: ', element.attrib['id'] ,' значение в файле:', delivery_price_tag.text, ' тип доставки(1-МГТ, 2-КГТ):', int( item[8] )
+                                print '-'*80
+                        else:
+                            if  ( float(delivery_price_tag.text) not in delivery_price[ int( item[6] ) ] ): 
+                                stat+=1
+                                print 'Ошибка в теге <LOCAL_DELIVERY_COST>:'
+                                print 'Цена доставки определена в товаре или для магазина'
+                                print 'ID товара: ', element.attrib['id'] ,' значение в файле:', delivery_price_tag.text, ' тип доставки(1-МГТ, 2-КГТ):', int( item[6] )
+                                print '-'*80
           
         # конец теста
         assert stat==0, (u'Errors:%d')%(stat)
