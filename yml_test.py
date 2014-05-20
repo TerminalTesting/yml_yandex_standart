@@ -364,9 +364,9 @@ class YMLTest(unittest.TestCase):
                 #цена доставки определена в товаре или для магазина
                 else:
                     if DPD == True:
-                        cost = self.session.query(Rates.cost).\
-                                           filter(Rates.city_id == DPDcity).\
-                                           filter(or_(Rates.max_weight == int(item[6].logic_weight), Rates.max_weight > int(item[6].logic_weight))).first()
+                        cost = session.query(Rates.cost).\
+                                      filter(Rates.city_id == DPDcity).\
+                                      filter(or_(Rates.max_weight == int(item[0].logic_weight), Rates.max_weight > int(item[0].logic_weight))).first()
                         if cost:
                             cost = cost[0]#tuple is result of query
                             if int(delivery_price_tag.text) != cost: 
