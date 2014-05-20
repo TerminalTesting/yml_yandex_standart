@@ -111,7 +111,7 @@ class YMLTest(unittest.TestCase):
         shop_url_element=xml.find('shop').find('url')
         
         DOMAIN = get_domain(shop_url_element.text)
-        DPD = '?dcid=' in shop_url_element
+        DPD = '?dcid=' in shop_url_element.text
         cnt=1
         stat=0
         
