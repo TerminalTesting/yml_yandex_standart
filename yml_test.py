@@ -136,7 +136,7 @@ class YMLTest(unittest.TestCase):
 #         else:
 #             delivery_price={1:0.00, 2:0.00}
         
-        print ('YML:%s\nDomain:%s\nDeliveries flag:%s')%(self.YML_FILE_NAME, DOMAIN, delivery_flag )
+        print ('YML:%s\nDomain:%s\nDeliveries flag:%s\nDPD:%s')%(self.YML_FILE_NAME, DOMAIN, delivery_flag, DPD )
         print
         for element in xml_tree:
             # получаем теги из выгрузки
@@ -266,7 +266,11 @@ class YMLTest(unittest.TestCase):
 
 
             #тег статуса <available>
-            if (element.attrib['available'] in ('true', 'True') ) != ( item[1].status==1 ) if DPD != True else False:
+            if DPD == True:
+                item_available = False
+            else:
+                item_available = ( item[1].status==1 )
+            if (element.attrib['available'] in ('true', 'True') ) != item_available:
                 stat+=1
                 print 'Ошибка в теге <AVAILABLE>:'
                 print 'ID товара: ', element.attrib['id'] ,' значение в файле:',element.attrib['available'], ' значение в базе данных:',item[1].status==1, item[1].status
