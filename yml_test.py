@@ -199,6 +199,14 @@ class YMLTest(unittest.TestCase):
                 print 'ID товара: ', element.attrib['id'] ,' Цена у данного товара равна нулю. '
                 print '-'*80
 
+            elif item[1].status == 5 and DPD != True:
+                item_price = item[3].price_supplier
+                if int(float(price_tag.text))!= int(item_price):
+                    stat+=1
+                    print 'Ошибка в теге <PRICE>: Цена поставщика'
+                    print 'ID товара: ', element.attrib['id'] ,' значение в файле:',int(float(price_tag.text)), ' значение в базе данных:', int(item_price)
+                    print '-'*80
+
             else:
                 actions_goods = session.query(Action_goods).group_by(Action_goods.action_id).\
                                                             filter(Action_goods.goods_id == item[0].id).\
@@ -219,7 +227,7 @@ class YMLTest(unittest.TestCase):
                             if action_price:
                             
                                 action_price = action_price[0][0]
-                                main_price = item[3].price if item[1].status != 5 else item[3].price_supplier
+                                main_price = item[3].price
 
                                 #if int(action_price) > int(main_price) and actions_goods[0].action_id not in (13,):
                                 #    item_price = main_price
@@ -227,14 +235,14 @@ class YMLTest(unittest.TestCase):
                                 #    item_price = main_price
                                 #else:
                                 #    item_price = action_price
-                                if action_price < main_price and actions_goods[0].action_id not in (13,):
+                                if action_price < main_price and actions_goods[0].action_id not in (13,) and int(action_price) != 0:
                                     if int(float(price_tag.text)) != int(action_price):
                                         stat+=1
                                         print 'Ошибка в теге <PRICE>: ЦЕНА АКЦИОННАЯ'
                                         print 'ID товара: ', element.attrib['id'] ,' значение в файле:', int(float(price_tag.text)), ' значение в базе данных:', int(action_price)
                                         print '-'*80
                                 else:
-                                    item_price = item[3].price if item[1].status != 5 else item[3].price_supplier            
+                                    item_price = item[3].price
                                     if int(float(price_tag.text))!= int(item_price):
                                         stat+=1
                                         print 'Ошибка в теге <PRICE>:'
@@ -242,7 +250,7 @@ class YMLTest(unittest.TestCase):
                                         print '-'*80
                                     
                             else:
-                                item_price = item[3].price if item[1].status != 5 else item[3].price_supplier            
+                                item_price = item[3].price
                                 if int(float(price_tag.text))!= int(item_price):
                                     stat+=1
                                     print 'Ошибка в теге <PRICE>:'
@@ -250,7 +258,7 @@ class YMLTest(unittest.TestCase):
                                     print '-'*80
 
                         else:
-                            item_price = item[3].price if item[1].status != 5 else item[3].price_supplier            
+                            item_price = item[3].price
                             if int(float(price_tag.text))!= int(item_price):
                                 stat+=1
                                 print 'Ошибка в теге <PRICE>:'
@@ -259,7 +267,7 @@ class YMLTest(unittest.TestCase):
 
                        
                     else:
-                        item_price = item[3].price if item[1].status != 5 else item[3].price_supplier            
+                        item_price = item[3].price
                         if int(float(price_tag.text))!= int(item_price):
                     
                             stat+=1
@@ -269,7 +277,7 @@ class YMLTest(unittest.TestCase):
 
 
                 else:
-                    item_price = item[3].price if item[1].status != 5 else item[3].price_supplier            
+                    item_price = item[3].price
                     if int(float(price_tag.text))!= int(item_price):
                     
                         stat+=1
