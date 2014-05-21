@@ -12,7 +12,7 @@ from yml_models import *
 from string import split
 from urlparse import urlparse
 from sqlalchemy import or_
-from sqlalchemy import func
+from sqlalchemy.sql.expression import func
 
 def get_domain(url):
     """  найти домен региона """
