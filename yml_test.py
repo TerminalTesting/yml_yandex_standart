@@ -395,11 +395,11 @@ class YMLTest(unittest.TestCase):
                                       filter(Rates.max_weight > logic_weight).first()
                         if cost:
                             cost = cost[0]#tuple is result of query
-                            if int(delivery_price_tag.text) != cost: 
+                            if int(delivery_price_tag.text) != int(cost): 
                                 stat+=1
                                 print 'Ошибка в теге <LOCAL_DELIVERY_COST>:'
                                 print 'Цена доставки не соответствует'
-                                print 'ID товара: ', element.attrib['id'] ,' значение в файле:', delivery_price_tag.text, ' значение в базе данных:', cost
+                                print 'ID товара: ', element.attrib['id'] ,' значение в файле:', delivery_price_tag.text, ' значение в базе данных:', int(cost)
                                 print '-'*80
                                 
                         else:
@@ -407,11 +407,11 @@ class YMLTest(unittest.TestCase):
                                       filter(Rates.city_id == DPDcity).first()
                             if cost:
                                 cost = cost[0]#tuple is result of query
-                                if int(delivery_price_tag.text) != cost: 
+                                if int(delivery_price_tag.text) != int(cost): 
                                     stat+=1
                                     print 'Ошибка в теге <LOCAL_DELIVERY_COST>:'
                                     print 'Цена доставки не соответствует'
-                                    print 'ID товара: ', element.attrib['id'] ,' значение в файле:', delivery_price_tag.text, ' значение в базе данных:', cost
+                                    print 'ID товара: ', element.attrib['id'] ,' значение в файле:', delivery_price_tag.text, ' значение в базе данных:', int(cost)
                                     print '-'*80
                                     
                             else:
