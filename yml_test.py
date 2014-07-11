@@ -212,13 +212,15 @@ class YMLTest(unittest.TestCase):
                 actions_goods = session.query(Action_goods).group_by(Action_goods.action_id).\
                                                             filter(Action_goods.goods_id == item[0].id).\
                                                             filter(Action_goods.action_id != 63 ).all() #63 - акция лояльности, не должно попадать в выгрузку.
-                if actions_goods: 
+
+                if actions_goods != None: 
                     #if len(actions_goods)>1:
                     #    stat+=1
                     #    print 'ID товара: ', element.attrib['id'] ,' Данный товар участвует одновременно в 2 активных акциях, необходима ручная проверка наименования'
                     #    print '-'*80
 
                     action_price_guid = session.query(Actions_price.price_type_guid).filter(Actions_price.action_set_id == actions_goods[0].set_id).all()
+                    
                     if action_price_guid:
                         action_price_guid = (x[0] for x in set(action_price_guid))#guid акционной цены товара во всех регионах
                         good_price = session.query(City_price.price_type_guid).filter(City_price.city_id == item[2].id).filter(City_price.price_type_guid.in_(action_price_guid)).all() #guid акционной цены товара в нужном регионе
