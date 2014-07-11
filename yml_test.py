@@ -105,7 +105,7 @@ class YMLTest(unittest.TestCase):
     def test_yml_2(self):
         """ проверка тегов на соответствие с базой """
         db = create_engine(self.CONNECT_STRING) #, convert_unicode=False
-        db.echo = False  # Try changing this to True and see what happens
+        db.echo = True  # Try changing this to True and see what happens
         metadata = MetaData(db)
         session=create_session(bind=db)
         xml=etree.parse(self.YML_FILE_NAME, parser=self.parser )
