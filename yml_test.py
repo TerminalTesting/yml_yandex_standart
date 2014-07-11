@@ -212,7 +212,7 @@ class YMLTest(unittest.TestCase):
                 actions_goods = session.query(Action_goods).group_by(Action_goods.action_id).\
                                                             filter(Action_goods.goods_id == item[0].id).\
                                                             filter(Action_goods.action_id != 63 ).all() #63 - акция лояльности, не должно попадать в выгрузку.
-
+                print actions_goods
                 if actions_goods != None: 
                     #if len(actions_goods)>1:
                     #    stat+=1
