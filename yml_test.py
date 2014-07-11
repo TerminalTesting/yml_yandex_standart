@@ -105,7 +105,7 @@ class YMLTest(unittest.TestCase):
     def test_yml_2(self):
         """ проверка тегов на соответствие с базой """
         db = create_engine(self.CONNECT_STRING) #, convert_unicode=False
-        db.echo = True  # Try changing this to True and see what happens
+        db.echo = False  # Try changing this to True and see what happens
         metadata = MetaData(db)
         session=create_session(bind=db)
         xml=etree.parse(self.YML_FILE_NAME, parser=self.parser )
@@ -212,8 +212,8 @@ class YMLTest(unittest.TestCase):
                 actions_goods = session.query(Action_goods).group_by(Action_goods.action_id).\
                                                             filter(Action_goods.goods_id == item[0].id).\
                                                             filter(Action_goods.action_id != 63 ).all() #63 - акция лояльности, не должно попадать в выгрузку.
-                print actions_goods
-                if actions_goods != None: 
+                
+                if actions_goods: 
                     #if len(actions_goods)>1:
                     #    stat+=1
                     #    print 'ID товара: ', element.attrib['id'] ,' Данный товар участвует одновременно в 2 активных акциях, необходима ручная проверка наименования'
