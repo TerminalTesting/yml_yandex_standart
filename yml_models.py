@@ -74,7 +74,13 @@ class Goods_price( Base ):
     price_type_guid=Column( String(), primary_key=True )
     goods_id =Column(Integer, primary_key=True)
     price=Column(Float)
-    price_supplier=Column(Float)    
+
+class Supplier_price( Base ):
+    """ Цены поставщика """
+    __tablename__='t_goods_prices_supplier'#, metadata,
+    price_type_guid=Column( String(), primary_key=True )
+    goods_id =Column(Integer, primary_key=True)
+    price_supplier=Column(Float)
 
 class Goods_block( Base ):
     """ Название инф.блоков"""
