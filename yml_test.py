@@ -5,6 +5,8 @@
 import unittest
 import sys
 from lxml import etree
+from lxml.html import fromstring
+from lxml.html.clean import clean_html
 import codecs 
 import urllib2
 import os
@@ -161,17 +163,15 @@ class YMLTest(unittest.TestCase):
             # получаем параметры товара из БД
             item=session.query( Goods, Goods_stat, Region, Goods_price, Goods_section,
                                 Goods_block.name, Goods_block.delivery_type, Goods_block.flag_self_delivery,
-                                Goods.overall_type, Goods_block.flag_permit_delivery, Goods_block.id, Supplier_price).\
-                        join(Goods_stat, Goods.id==Goods_stat.goods_id).\
-                        join(Goods_price, (Goods.id==Goods_price.goods_id)  ).\
-                        join(Goods_section, (Goods_section.guid==Goods.section_guid)  ).\
-                        join(Goods_block, (Goods_block.id==Goods.block_id) ).\
-                        join(Supplier_price, Supplier_price.goods_id == Goods.id).\
-                        filter( Goods.id==element.attrib['id'] ).\
-                        filter( Region.domain==DOMAIN ).\
-                        filter( (Goods_stat.city_id== Region.id) & (Goods_price.price_type_guid==Region.price_type_guid) ).\
-                        filter( Supplier_price.price_type_guid == Region.price_type_guid ).\
-                        first()
+                                Goods.overall_type, Goods_block.flag_permit_delivery, Goods_block.id).\
+                                join(Goods_stat, Goods.id==Goods_stat.goods_id).\
+                                join(Goods_price, (Goods.id==Goods_price.goods_id)  ).\
+                                join(Goods_section, (Goods_section.guid==Goods.section_guid)  ).\
+                                join(Goods_block, (Goods_block.id==Goods.block_id) ).\
+                                filter( Goods.id == element.attrib['id'] ).\
+                                filter( Region.domain == DOMAIN ).\
+                                filter( (Goods_stat.city_id== Region.id) & (Goods_price.price_type_guid==Region.price_type_guid) ).\
+                                first()
             
             no_self_delivery = []
             no_self_delivery.append( session.query(Shops.flag_no_self_delivery).\
@@ -186,14 +186,11 @@ class YMLTest(unittest.TestCase):
             
             # в выгрузке есть а в БД нет ид товара
             if item==None:
-                print 'Ошибка в теге <OFFER>:'
-                print 'ID товара: ', element.attrib['id'] ,' значение в файле:',description_tag.text, ' значение в базе данных не найдено'
+                stat+=1
+                print u'Ошибка в теге <OFFER>:'
+                print u'ID товара: ', element.attrib['id'] , u'Товар с таким ID не найден в БД'
                 print '-'*80
                 continue
-
-            #тег название товара <description>
-#             if description_tag.text!=item[0].name:
-#                 print 'Error:NAME:', element.attrib['id'] ,' XML:',description_tag.text, ' DB:', item[0].name
             
             #тег цена <price>
             if int(float(price_tag.text)) == 0:
@@ -203,7 +200,11 @@ class YMLTest(unittest.TestCase):
                 print '-'*80
 
             elif item[1].status == 5 and DPD != True:
-                item_price = item[11].price_supplier
+                #if sipplier status used - take supplier price from database
+                item_price = session.query(Supplier_price.price_supplier).\
+                        		   filter( (Supplier_price.goods_id == element.attrib['id']) & (Supplier_price.price_type_guid == item[3].price_type_guid) ).\
+                        		   first()[0]
+
                 if int(float(price_tag.text))!= int(item_price):
                     stat+=1
                     print 'Ошибка в теге <PRICE>: Цена поставщика'
@@ -369,8 +370,37 @@ class YMLTest(unittest.TestCase):
                 print 'ID товара: ', element.attrib['id'] ,' значение в файле:', vendor_tag.text, ' значение в базе данных:', item[0].brand
                 print '-'*80
 
+
+            #тег <description>
+            if item[0].description != '':
+                #take lxml object to decode from html symbol codes
+                tree = fromstring(item[0].description)
+                description_string = clean_html(tree).text_content()
+                if len(description_string) > 512:
+                    description_string = description_string[:509] + '...'
+                if description_tag.text.strip() != description_string:
+                    stat+=1
+                    print 'Ошибка в теге <description>:'
+                    print 'ID товара: ', element.attrib['id']
+                    print u'\nзначение в файле:\n', description_tag.text.strip()
+                    print
+                    print u'\nзначение в базе данных:\n', description_string
+                    print '-'*80
+            else:
+                #take lxml object to clean from html tags
+                tree = fromstring(item[0].prop_full.replace('</li><li>','</li>&#32;<li>'))#need to add space html code after li
+                description_string = clean_html(tree).text_content()
+                if len(description_string) > 512:
+                    description_string = description_string[:509] + '...'
+                if description_tag.text.strip() != description_string:
+                    stat+=1
+                    print 'Ошибка в теге <description>:'
+                    print 'ID товара: ', element.attrib['id']
+                    print u'\nзначение в файле:\n', description_tag.text.strip()
+                    print u'\nзначение в базе данных:\n', description_string
+                    print '-'*80
+
             #если цены доставки определены, а тега local_delivery_cost нет 
-            
             if (delivery_flag==True) and (delivery_price_tag==None):
                 stat+=1
                 print 'Ошибка в теге <LOCAL_DELIVERY_COST>:'
@@ -384,7 +414,7 @@ class YMLTest(unittest.TestCase):
                 # цена доставки нулевая, то проверяем ценовой предел 
                 if float(delivery_price_tag.text)==0.00:
                     # при бесплатной доставке цена товара д.б больше чем предел
-                    if float(price_tag.text)<max(highest_price) or highest_price[int( item[6] )-1]==None:               
+                    if float(price_tag.text)< max(highest_price) or highest_price[int( item[6] )-1]==None:               
                         stat+=1
                         print 'Ошибка в теге <LOCAL_DELIVERY_COST>:'
                         print 'Бесплатная доставка при цене меньше требуемой'
