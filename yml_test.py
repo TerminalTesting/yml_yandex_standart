@@ -372,10 +372,9 @@ class YMLTest(unittest.TestCase):
 
 
             #тег <description>
-            if item[0].description != '':
-                #take lxml object to decode from html symbol codes
-                tree = fromstring(item[0].description)
-                description_string = clean_html(tree).text_content()
+            if item[0].description != None and item[0].description != '' and description_tag.text != None:
+
+                description_string = item[0].description.replace('"','&quot;')
                 if len(description_string) > 512:
                     description_string = description_string[:509] + '...'
                 if description_tag.text.strip() != description_string:
@@ -384,12 +383,13 @@ class YMLTest(unittest.TestCase):
                     print 'ID товара: ', element.attrib['id']
                     print u'\nзначение в файле:\n', description_tag.text.strip()
                     print
-                    print u'\nзначение в базе данных:\n', description_string
+                    print u'\nзначение в базе данных - description:\n', description_string
                     print '-'*80
-            else:
+
+            elif item[0].prop_full != None and description_tag.text != None:
                 #take lxml object to clean from html tags
                 tree = fromstring(item[0].prop_full.replace('</li><li>','</li>&#32;<li>'))#need to add space html code after li
-                description_string = clean_html(tree).text_content()
+                description_string = clean_html(tree).text_content().replace('"','&quot;')
                 if len(description_string) > 512:
                     description_string = description_string[:509] + '...'
                 if description_tag.text.strip() != description_string:
@@ -397,8 +397,14 @@ class YMLTest(unittest.TestCase):
                     print 'Ошибка в теге <description>:'
                     print 'ID товара: ', element.attrib['id']
                     print u'\nзначение в файле:\n', description_tag.text.strip()
-                    print u'\nзначение в базе данных:\n', description_string
+                    print u'\nзначение в базе данных - prop_full:\n', description_string
                     print '-'*80
+
+            else:
+                print '<description> is empty or none?'
+                print u'\nзначение в файле:\n', description_tag.text
+                print 'ID товара: ', element.attrib['id']
+                print '-'*80
 
             #если цены доставки определены, а тега local_delivery_cost нет 
             if (delivery_flag==True) and (delivery_price_tag==None):
@@ -410,7 +416,7 @@ class YMLTest(unittest.TestCase):
 
             #цена доставки товара в списке цен доставок по региону и по габаритности .delivery_type
 
-            if (delivery_flag==True):
+            if (delivery_tag.text=='true'):
                 # цена доставки нулевая, то проверяем ценовой предел 
                 if float(delivery_price_tag.text)==0.00:
                     # при бесплатной доставке цена товара д.б больше чем предел
@@ -478,6 +484,7 @@ class YMLTest(unittest.TestCase):
         """  проверка корректности ( доступности ) ссылки на товар (полный перебор тест длится около 4 часов)"""
         xml=etree.parse(self.YML_FILE_NAME, parser=None )
         xml_tree=etree.iterwalk(xml, events=("start", "end"), tag="url" )
+        max_check = int(os.getenv('LINES_NUMBER'))
         cnt=1
         stat=0
         for element in xml_tree:
@@ -490,8 +497,9 @@ class YMLTest(unittest.TestCase):
 		else:
                     print ('%d.Stat:%d Link:%s')%(cnt, link.code, element[1].text )
             cnt+=1
-            if cnt>=1000: 
+            if cnt>=max_check: 
                 break
+            
         assert stat==0, (u'Bad links find:%d')%(stat)
 
     
